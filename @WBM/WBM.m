@@ -1,4 +1,33 @@
+% -*- coding: 'UTF-8' -*-
 classdef WBM < handle
+    % WBM performs dynamic system modeling using adaptive frequency hopf model
+    % introduced by Kaboodvand et al. Network science 2019,and heun integration method.
+    % 
+    % 
+    % WBM properties:
+    %  parameters - the Adaptive frequency hopf model has 4 paramaters
+    %               including, A, global bifurcation, G, global coupling,
+    %               F, feedback and M, modulation.  
+    %  search     - determines the serach range of parameter space 
+    %  random     - defines the random seed for reproducibility and the standar deviation of the 
+    %               Wiener process (beta, default value is 0.02)
+    %  dt         - time step, default is 0.1 (s) 
+    %  SC         - structural connectivity
+    %  time       - defines the the duration and steps of simulation 
+    %  Emiprical  - contains the empirical data 
+    %  Simulated  - stores the simualtion data
+    %  filter     - temporal filter specification
+    % .
+    % 
+    %   Authors:
+    %           Neda Kaboodvand, n.kaboodvand@gmail.com 
+    %           Behzad Iravani, behzadiravani@gmail.com 
+    %
+    % Reference: Neda Kaboodvand, Martijn P. van den Heuvel, Peter Fransson; 
+    % Adaptive frequency-based modeling of whole-brain oscillations:
+    % Predicting regional vulnerability and hazardousness rates. Network Neuroscience 2019;
+    % 3 (4): 1094–1120. doi: https://doi.org/10.1162/netn_a_00104
+
     properties
         % model's parameter
         parameters = struct('A', [], 'G', [], 'F', [], 'M',[])
@@ -7,7 +36,7 @@ classdef WBM < handle
         % modeling random processes
         random     = struct('seed', 15, 'RR', [], 'beta', 0.02)
         % time resolution
-        dt = 0.1;%0.12
+        dt = 0.1;
         % structual connectivity
         SC = [];
         % number of regions to simulate
@@ -39,7 +68,8 @@ classdef WBM < handle
 
         end
         function obj = simulate(obj)
-
+            % simulate is method of class WBM and carries out the
+            % simulation
             % setting up data queue
             D = parallel.pool.DataQueue;
             it_total = length(obj.search.A)*length(obj.search.G)*...
@@ -85,16 +115,16 @@ classdef WBM < handle
                             send(D,A);
                         end
                         tmpxF{F} = tmpxM;
-                        tmpyF{F} = tmpxM;
-                        tmpwF{F} = tmpxM;
+                        tmpyF{F} = tmpyM;
+                        tmpwF{F} = tmpwM;
                     end
                     tmpxG{G} = tmpxF;
-                    tmpyG{G} = tmpxF;
-                    tmpwG{G} = tmpxF;
+                    tmpyG{G} = tmpyF;
+                    tmpwG{G} = tmpwF;
                 end
                 Xout{A} = tmpxG;
-                Yout{A} = tmpxG;
-                wout{A} = tmpxG;
+                Yout{A} = tmpyG;
+                wout{A} = tmpwG;
 
             end
 
@@ -112,6 +142,10 @@ classdef WBM < handle
             obj.Simulated.X = Xout;
             obj.Simulated.Y = Yout;
             obj.Simulated.w = wout;
+
+            % write simulation to file
+            writeDatFile('Data\simulated.dat', obj.Simulated)
+
            
             function [X,Y,w] = sim(obj,A, G, F, M)
                 % --- update parameters
@@ -120,7 +154,7 @@ classdef WBM < handle
                 obj.parameters.F = obj.search.F(F);
                 obj.parameters.M = obj.search.M(M);
                 [X,Y,w] = ...
-                    obj.de_Simulate_v22_nodalInput();
+                    de_Simulate_v22_nodalInput(obj);
             end
             function update_n(~)
                 loop_c = loop_c+1;

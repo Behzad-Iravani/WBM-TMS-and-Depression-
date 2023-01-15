@@ -53,18 +53,17 @@ Model = WBM;
 Model.intiate_model
 % add empirical data
 Model.Empirical = Empirical;
-%% Search 
-Model.search.A = -0.044:0.002:0.044;
-Model.search.G = 0.002:0.002:0.026;
-Model.search.F = -1:0.2:0;
-Model.search.M = 0.29:0.01:0.42;
+Model.SC        = Model.SC./repmat(sum(Model.SC,2), 1,68);
+%% Revison search
 
-% numel(Model.search.A)*numel(Model.search.G)*numel(Model.search.F)*numel(Model.search.M)
-%%
-% simulate
-Model.simulate()
-% saving
-% save result\SimulatedModel.mat Model
-writeDatFile(Model)
-save('result\ModelData.mat','Model', '-v7.3')
+Model.search.A = 0;%single([-.2:.01:.2]); 
+Model.search.G = 0;%single([0.005:0.005:0.05]);
+Model.search.F = 0;%single([-1:0.1:0]);
+Model.search.M = 0;%single([0.1:0.03:.5]);
+%% Grid search and simulation 
+% simulating and saving
+% Model.simulate()
+%% running Monte Carlo permuatations
+MonteCarloJob = MonteCarlo
+
 
