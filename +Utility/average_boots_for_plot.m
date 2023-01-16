@@ -1,4 +1,15 @@
+% -*- coding: 'UTF-8' -*-
 function T_p = average_boots_for_plot(mdl,T_select,var1, var2)
+% average_boots_for_plot avearge over bootstrap iteration for ploting
+%   Authors:
+%           Neda Kaboodvand, n.kaboodvand@gmail.com
+%           Behzad Iravani, behzadiravani@gmail.com
+% This function is part of scripts for Macroscopic resting state model predicts
+% theta burst stimulation response: a randomized trial
+% Jan 2023, Stanford, Palo Alto, USA
+
+%%-----------------------------------------------------------------------%%
+
 T_p = table();
 for i = 1:4:size(mdl.(var1).idx,3)
     % sham DEP1
