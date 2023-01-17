@@ -118,7 +118,9 @@ LM = BHV_LinearRegression({MonteCarloJob_30, MonteCarloJob_50, MonteCarloJob_70}
 % run bootstrapped linear regression
 LM = LM.run();
 % ploting 
+warning off
 LM.plot
+warning on
 print -dpng -r300 result\ViolinMeasure.png
 save LM.mat LM
 % % % bar([mean(Results.TS.MetaStability(Results.TS.Model_Prediction == 1))
@@ -127,7 +129,12 @@ save LM.mat LM
 % % % bar([mean(Results.TS.Synchrony(Results.TS.Model_Prediction == 1))
 % % %     mean(Results.TS.Synchrony(Results.TS.Model_Prediction == 2))])
 %% 3.3	Individual factors of MADRS-S, BPRS AFF and CAINS differentiate depression subtypes at baseline 
-
+LG = BHV_LogisticRegression({MonteCarloJob_30, MonteCarloJob_50, MonteCarloJob_70}, Results);
+% run bootstrapped linear regression
+LG = LG.run();
+%% 3.4	The iTBS treatment modulates items in a certain depression subgroup 
+itANOVA = itemsANOVA({MonteCarloJob_30, MonteCarloJob_50, MonteCarloJob_70}, Results, LG);
+itANOVA.run
 
 %% Plot simulated TCs for major brain lobes
 load('+utility\cortical_ROIs.mat')

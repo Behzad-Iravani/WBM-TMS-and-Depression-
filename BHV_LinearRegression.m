@@ -1,6 +1,6 @@
 % -*- coding: 'UTF-8' -*-
 classdef BHV_LinearRegression < Results
-    % BHV_LinearRegression is subclass of Results. It performs linear
+    % BHV_LinearRegression is a subclass of Results. It performs linear
     % regression on the behavioral data and assesses the association
     % between the identfied sub-cohorts and behavior
     %   Authors:
@@ -36,20 +36,21 @@ classdef BHV_LinearRegression < Results
                 obj.TS.(strcat("z", parm, "_B")) = nanz(obj.TS.(strcat(parm, "_B")));
                 % Bootstraping the table
                 [obj.mdl.(parm).coeff, obj.mdl.(parm).coeffname, obj.mdl.(parm).idx] = utility.boot_table(obj.TS,...
-                    'madrs_total_delta ~ 1 + zage + sex + treatment * Model_Prediction + zmadrs_total_B');
+                    strcat(parm,"_delta ~ 1 + zage + sex + treatment * Model_Prediction +z",parm,"_B"));
                 obj.mdl.(parm).eIDX = find(cellfun(@(x) strcmp(x,'treatment_active:Model_Prediction_DEP2'), obj.mdl.(parm).coeffname{1}));
                 obj.mdl.(parm).CI  = quantile(obj.mdl.(parm).coeff(:,obj.mdl.(parm).eIDX),[.025,.975]); % 95% bootstrap confidence interval
             end
         end % end run
         function plot(obj)
             iplot = 0;
+            clear plot_violn
             for parm = ["madrs_total", "bprs_aff", "cains_total", "cains_map", "cains_exp", "tmtA", "tmtB"]
                 iplot = iplot +1;
                 % average over bootstrap iterations for ploting
                 TP = utility.average_boots_for_plot(obj.mdl,obj.TS,parm,strcat(parm,"_delta"));
                 subplot(2,4,iplot)
                 cla
-                utility.plot_violn(TP,strcat(parm,"_delta"))
+                utility.plot_violin(TP,strcat(parm,"_delta"))
                 title(strcat("\rm", parm))
             end
         end
